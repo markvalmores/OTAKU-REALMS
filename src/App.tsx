@@ -100,6 +100,7 @@ import WorldsList from "./components/worldslist";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [isAdminOverride, setIsAdminOverride] = useState(false);
   const isAdmin = (user?.email && ["mdv4244@gmail.com", "zerozone757@gmail.com", "usagyuuunquan@gmail.com"].includes(user.email)) || isAdminOverride;
   const [showStartScreen, setShowStartScreen] = useState(true);
@@ -234,6 +235,7 @@ export default function App() {
           console.error("Error fetching user profiles:", e);
         }
       }
+      setAuthLoading(false);
     });
     return unsubscribe;
   }, []);
@@ -263,6 +265,35 @@ export default function App() {
       setNewObjectName("");
     }
   };
+
+  const handleLogout = async () => {
+    await logout();
+    setShowStartScreen(true);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="relative min-h-screen flex flex-col items-center justify-center text-white p-6 overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none select-none">
+          <iframe
+            src="https://www.youtube.com/embed/zQGQLEE1nQs?autoplay=1&loop=1&mute=1&playlist=zQGQLEE1nQs&controls=0&showinfo=0&autohide=1&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3"
+            className="w-full h-full object-cover pointer-events-none select-none"
+            style={{ minWidth: '100vw', minHeight: '100vh', pointerEvents: 'none' }}
+            allow="autoplay; encrypted-media"
+            title="Background Video"
+          />
+        </div>
+        <div className="relative z-10 flex flex-col items-center justify-center bg-gray-950/80 p-10 rounded-3xl backdrop-blur-md border-2 border-orange-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-w-sm text-center space-y-4">
+          <img src={heroImage} alt="Hero" className="rounded-2xl shadow-2xl w-32 h-32 object-cover border-4 border-orange-500 mx-auto animate-pulse" />
+          <h1 className="text-3xl font-heading text-orange-500 font-extrabold tracking-tight">Otaku Realms</h1>
+          <p className="text-xs text-gray-400 font-mono">Synchronizing Secure Access Channel...</p>
+          <div className="w-16 h-1.5 bg-gray-800 rounded-full overflow-hidden mx-auto">
+            <div className="bg-orange-500 h-full w-1/2 rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -434,7 +465,7 @@ export default function App() {
               🛒 Mart Shop & Otaku+
             </button>
 
-            <button onClick={logout} className="px-3 py-2 bg-gray-900 border border-gray-800 text-gray-400 hover:text-white rounded-xl text-xs font-mono transition">
+            <button onClick={handleLogout} className="px-3 py-2 bg-gray-900 border border-gray-800 text-gray-400 hover:text-white rounded-xl text-xs font-mono transition">
               Sign Out
             </button>
           </div>
