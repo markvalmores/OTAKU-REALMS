@@ -136,8 +136,30 @@ export default function App() {
           <h1 className="text-3xl font-bold mb-6 text-center text-white">Otaku Realms</h1>
           <input type="email" placeholder="Email" className="w-full p-3 mb-4 bg-gray-800 rounded border border-gray-700" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input type="password" placeholder="Password" className="w-full p-3 mb-6 bg-gray-800 rounded border border-gray-700" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button onClick={() => login(email, password)} className="w-full p-3 mb-2 bg-indigo-600 rounded font-semibold text-white hover:bg-indigo-700">Login</button>
-          <button onClick={() => register(email, password)} className="w-full p-3 bg-gray-700 rounded font-semibold text-white hover:bg-gray-600">Register</button>
+          <button 
+            onClick={async () => {
+              try {
+                await login(email, password);
+              } catch (e: any) {
+                alert(e.message);
+              }
+            }} 
+            className="w-full p-3 mb-2 bg-indigo-600 rounded font-semibold text-white hover:bg-indigo-700"
+          >
+            Login
+          </button>
+          <button 
+            onClick={async () => {
+              try {
+                await register(email, password);
+              } catch (e: any) {
+                alert(e.message);
+              }
+            }} 
+            className="w-full p-3 bg-gray-700 rounded font-semibold text-white hover:bg-gray-600"
+          >
+            Register
+          </button>
         </div>
       </div>
     );
