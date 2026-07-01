@@ -25,6 +25,10 @@ export class SoundManager {
   playHit() { this.playSound(200, 'square', 0.1, 0.1); }
   playDodge() { this.playSound(600, 'triangle', 0.2, 0.1); }
   playSpecial() { this.playSound(100, 'sawtooth', 0.5, 0.15); }
+  playLevelUp() { 
+    this.playSound(440, 'sine', 0.15, 0.1);
+    setTimeout(() => this.playSound(880, 'sine', 0.25, 0.1), 150);
+  }
 
   startCombatMusic() {
     if (!this.audioCtx || this.musicNode) return;

@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
 
-export default function MiniMap() {
-  const [pos, setPos] = useState({ x: 50, y: 50 });
+export default function MiniMap({ pos: propPos }: { pos?: { x: number; y: number } }) {
+  const [localPos, setLocalPos] = useState({ x: 50, y: 50 });
 
-  // Mock movement to simulate player exploration
+  // Mock movement to simulate player exploration as fallback
   useEffect(() => {
+    if (propPos) return;
     const interval = setInterval(() => {
-      setPos(p => ({
+      setLocalPos(p => ({
         x: Math.max(10, Math.min(90, p.x + (Math.random() - 0.5) * 5)),
         y: Math.max(10, Math.min(90, p.y + (Math.random() - 0.5) * 5))
       }));
     }, 500);
     return () => clearInterval(interval);
-  }, []);
+  }, [propPos]);
+
+  const pos = propPos || localPos;
 
   return (
-    <div className="absolute top-4 left-4 w-32 h-32 bg-gray-950/70 rounded-full border-2 border-orange-500/50 overflow-hidden backdrop-blur-sm">
+    <div className="absolute top-4 right-4 w-32 h-32 bg-gray-950/70 rounded-full border-2 border-orange-500/50 overflow-hidden backdrop-blur-sm z-30">
       <svg viewBox="0 0 100 100" className="w-full h-full">
         {/* Radar Grid */}
         <circle cx="50" cy="50" r="45" stroke="#f97316" strokeWidth="0.5" fill="none" strokeDasharray="4 4" />

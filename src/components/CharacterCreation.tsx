@@ -8,12 +8,20 @@ export default function CharacterCreation({ user, onComplete }: { user: User, on
   const [charClass, setCharClass] = useState("Warrior");
 
   const handleCreate = async () => {
-    await setDoc(doc(db, "characterStats", user.uid), {
-      name,
-      charClass,
-      str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, xp: 0
-    });
-    onComplete();
+    if (!name.trim()) {
+      alert("Please enter a character name");
+      return;
+    }
+    try {
+      await setDoc(doc(db, "characterStats", user.uid), {
+        name,
+        charClass,
+        str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, xp: 0
+      });
+      onComplete();
+    } catch (e: any) {
+      alert(e.message);
+    }
   };
 
   return (

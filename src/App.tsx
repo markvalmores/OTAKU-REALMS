@@ -15,7 +15,8 @@ import { collection, addDoc, onSnapshot, query, doc, getDoc } from "firebase/fir
 import { auth, db } from "./lib/firebase";
 import { WorldObject, PlayerStats } from "./types";
 import { login, register, logout } from "./lib/auth";
-import { Sword, MapPin, Plus } from "lucide-react";
+import { soundManager } from "./lib/soundManager";
+import { Sword, MapPin, Plus, Home, Radio, HelpCircle } from "lucide-react";
 import Inventory from "./components/Inventory";
 import CharacterStats from "./components/CharacterStats";
 import QuestLog from "./components/QuestLog";
@@ -31,15 +32,64 @@ import CombatOverlay from "./components/CombatOverlay";
 import Leaderboard from "./components/Leaderboard";
 import ShopModal from "./components/ShopModal";
 import NotificationBanner from "./components/NotificationBanner";
+import GameViewport from "./components/GameViewport";
+
+// New modular custom components imports
+import Login from "./components/login";
+import Register from "./components/register";
+import Player from "./components/player";
+import UserPanel from "./components/user";
+import Worlds from "./components/worlds";
+import Characters from "./components/characters";
+import Body from "./components/body";
+import Soul from "./components/soul";
+import Settings from "./components/settings";
+import Maps from "./components/maps";
+import Menu from "./components/menu";
+import HomeMenu from "./components/homemenu";
+import VFX from "./components/vfx";
+import SFX from "./components/sfx";
+import Soundtrack from "./components/soundtrack";
+import Ground from "./components/ground";
+import Gravity from "./components/gravity";
+import Story from "./components/story";
+import FreeRoam from "./components/freeroam";
+
+// Grouped new modular components
+import Invite from "./components/invite";
+import Portal from "./components/portal";
+import VoiceMic from "./components/mic";
+import Chats from "./components/chats";
+import Community from "./components/community";
+import OtakuPlus from "./components/otakuplus";
+import GCash from "./components/gcash";
+import PayPal from "./components/paypal";
+import Subscribed from "./components/subscribed";
+import Follow from "./components/follow";
+import Ranking from "./components/ranking";
+import Top from "./components/top";
+import GameServer from "./components/server";
+import Names from "./components/names";
+import AniCash from "./components/anicash";
+import Job from "./components/job";
+import Earn from "./components/earn";
+import Grind from "./components/grind";
+import Pity from "./components/pity";
+import Gacha from "./components/gacha";
+import Clothes from "./components/clothes";
+import PremiumChara from "./components/premiumchara";
+import GachaChara from "./components/gachachara";
+import GachaMechanic from "./components/gachamechanic";
+import CharacterList from "./components/characterlist";
+import WorldsList from "./components/worldslist";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const isAdmin = user?.email && ["mdv4244@gmail.com", "zerozone757@gmail.com", "usagyuuunquan@gmail.com"].includes(user.email);
+  const [isAdminOverride, setIsAdminOverride] = useState(false);
+  const isAdmin = (user?.email && ["mdv4244@gmail.com", "zerozone757@gmail.com", "usagyuuunquan@gmail.com"].includes(user.email)) || isAdminOverride;
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [viewMode, setViewMode] = useState<'first' | 'second' | 'third'>('third');
   const [currentWorldId, setCurrentWorldId] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [worldObjects, setWorldObjects] = useState<WorldObject[]>([]);
   const [newObjectName, setNewObjectName] = useState("");
   const [hasCharacter, setHasCharacter] = useState(false);
@@ -50,6 +100,44 @@ export default function App() {
     hp: 100, maxHp: 100, status: 'healthy', inventory: { food: 0, medicine: 0 }, money: 100, isOtakuPlus: false
   });
   const [showShop, setShowShop] = useState(false);
+  const [playerPos, setPlayerPos] = useState({ x: 50, y: 50 });
+
+  // Custom simulation and tab States
+  const [activeAvatar, setActiveAvatar] = useState("🧙‍♀️");
+  const [activeCharClass, setActiveCharClass] = useState("Mage");
+  const [activeCharName, setActiveCharName] = useState("Rin Tohsaka");
+  const [graphicsPreset, setGraphicsPreset] = useState<'Low' | 'Midrange' | 'High' | 'Ultrakill'>('High');
+  const [keyMap, setKeyMap] = useState({
+    up: "W",
+    down: "S",
+    left: "A",
+    right: "D",
+    interact: "E",
+    attack: "SPACE"
+  });
+  const [showHomeMenu, setShowHomeMenu] = useState(true);
+  const [activeTab, setActiveTab] = useState("player");
+  const [checkoutState, setCheckoutState] = useState<{ method: 'gcash' | 'paypal'; price: number; itemName: string } | null>(null);
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+
+  // Modular state for new systems
+  const [pityCount, setPityCount] = useState(0);
+  const [aniCash, setAniCash] = useState(1000);
+  const [equippedOutfit, setEquippedOutfit] = useState("Standard Student Uniform");
+  const [unlockedCharacters, setUnlockedCharacters] = useState<string[]>(["Kuro Shinobi"]);
+  const [instanceSettings, setInstanceSettings] = useState({
+    globalMultiplier: 1.0,
+    ramenPayout: 25,
+    securityPayout: 60,
+    cafePayout: 120,
+    guildPayout: 250,
+    shibuyaActive: true,
+    akihabaraActive: true,
+    kyotoActive: true,
+    customWorldName1: "Shibuya Cyber Sector",
+    customWorldName2: "Akihabara Neon Plaza",
+    customWorldName3: "Kyoto Fantasy Shrine",
+  });
 
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'first' ? 'second' : prev === 'second' ? 'third' : 'first');
@@ -124,6 +212,14 @@ export default function App() {
           >
             Enter Virtual Realms
           </button>
+          <a
+            href="https://streamlabs.com/usagyuunvtuber/tip"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 px-8 py-3 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 hover:from-amber-200 hover:to-amber-500 text-gray-950 font-black tracking-wider text-xs uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200 hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center gap-2"
+          >
+            ⭐ DONATE TO KEEP US GOING ⭐
+          </a>
         </div>
       </div>
     );
@@ -132,34 +228,47 @@ export default function App() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-4">
-        <div className="bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-800 w-full max-w-md">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">Otaku Realms</h1>
-          <input type="email" placeholder="Email" className="w-full p-3 mb-4 bg-gray-800 rounded border border-gray-700" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input type="password" placeholder="Password" className="w-full p-3 mb-6 bg-gray-800 rounded border border-gray-700" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button 
-            onClick={async () => {
-              try {
-                await login(email, password);
-              } catch (e: any) {
-                alert(e.message);
-              }
-            }} 
-            className="w-full p-3 mb-2 bg-indigo-600 rounded font-semibold text-white hover:bg-indigo-700"
-          >
-            Login
-          </button>
-          <button 
-            onClick={async () => {
-              try {
-                await register(email, password);
-              } catch (e: any) {
-                alert(e.message);
-              }
-            }} 
-            className="w-full p-3 bg-gray-700 rounded font-semibold text-white hover:bg-gray-600"
-          >
-            Register
-          </button>
+        <div className="bg-gray-900/90 p-8 rounded-2xl shadow-2xl border-2 border-orange-500/30 w-full max-w-md space-y-6">
+          <div className="text-center space-y-1">
+            <h1 className="text-4xl font-heading text-orange-500 font-extrabold tracking-tighter uppercase">Otaku Realms</h1>
+            <p className="text-xs text-gray-400 font-mono">Select secure access channel to connect to Virtual Realms</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 border-b border-gray-800 pb-4">
+            <button
+              onClick={() => setAuthView('login')}
+              className={`py-2 rounded-lg text-xs font-bold font-mono uppercase transition ${
+                authView === 'login' ? 'bg-orange-600 text-white shadow' : 'bg-gray-950 text-gray-500 hover:bg-gray-850'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => setAuthView('register')}
+              className={`py-2 rounded-lg text-xs font-bold font-mono uppercase transition ${
+                authView === 'register' ? 'bg-orange-600 text-white shadow' : 'bg-gray-950 text-gray-500 hover:bg-gray-850'
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {authView === 'login' ? (
+            <Login 
+              onSuccess={(u, isAdm) => {
+                setUser(u);
+                if (isAdm) {
+                  setIsAdminOverride(true);
+                  setStats(prev => ({ ...prev, isOtakuPlus: true, money: prev.money + 500 }));
+                }
+              }} 
+            />
+          ) : (
+            <Register 
+              onSuccess={(u) => setUser(u)} 
+              onNavigateLogin={() => setAuthView('login')}
+            />
+          )}
         </div>
       </div>
     );
@@ -170,72 +279,463 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 p-6 font-sans">
-      <NotificationBanner />
-      {activeCombat && <CombatOverlay enemyName={activeCombat} onEndCombat={endCombat} />}
-      <header className="flex justify-between items-center mb-10 border-b-4 border-orange-600 pb-6">
-        <h1 className="text-5xl font-heading text-orange-500 flex items-center gap-3">
-          <Sword className="text-white" />
-          Otaku Realms
-        </h1>
-        <div className="flex gap-4 items-center">
-          <select value={gameMode} onChange={(e) => setGameMode(e.target.value as 'Story' | 'FreeRoam')} className="bg-gray-800 text-white p-2 rounded">
-            <option>Story</option>
-            <option>FreeRoam</option>
-          </select>
-          <button 
-            onClick={toggleViewMode}
-            className="px-6 py-2 rounded-lg font-bold bg-orange-600 text-white"
-          >
-            Camera: {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
-          </button>
-          <button onClick={logout} className="text-gray-400 hover:text-white font-bold">Logout</button>
-        </div>
-      </header>
+    <VFX intensity={graphicsPreset} triggerShake={stats.status !== 'healthy' || activeCombat !== null}>
+      <div className="min-h-screen bg-gray-950 text-gray-100 p-4 md:p-6 font-sans">
+        <NotificationBanner />
+        {activeCombat && <CombatOverlay enemyName={activeCombat} onEndCombat={endCombat} />}
+        {showShop && <ShopModal stats={stats} setStats={setStats} onClose={() => setShowShop(false)} />}
+        
+        <header className="flex justify-between items-center mb-6 border-b-4 border-orange-600 pb-5 flex-wrap gap-3">
+          <h1 className="text-4xl font-heading text-orange-500 flex items-center gap-2">
+            <Sword className="text-white animate-pulse" />
+            Otaku Realms
+          </h1>
+          
+          <div className="flex gap-3 items-center flex-wrap">
+            <button
+              onClick={() => setShowHomeMenu(true)}
+              className="px-4 py-2 rounded-xl font-bold bg-orange-600 text-white hover:bg-orange-500 transition flex items-center gap-1.5 text-xs uppercase tracking-wide"
+            >
+              🎮 Launcher Menu
+            </button>
 
-      <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <section className="lg:col-span-2 bg-black rounded-2xl border-4 border-orange-900/50 flex items-center justify-center min-h-[50vh] lg:min-h-[70vh]">
-          <p className="text-orange-500 font-heading text-4xl">Immersive {viewMode} Person View</p>
-          <MiniMap />
-        </section>
+            <button 
+              onClick={() => setShowShop(true)}
+              className="px-4 py-2 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center gap-1.5 text-xs uppercase"
+            >
+              🛒 Mart Shop & Otaku+
+            </button>
 
-        <div className="space-y-8">
-          {isAdmin && <AdminPanel godMode={godMode} setGodMode={setGodMode} />}
-          <AvatarSystem />
-          <MicrophoneSystem />
-          <CharacterAnatomy />
-          <Leaderboard />
-          <CharacterStats user={user} godMode={godMode} />
-          <QuestLog user={user} />
-          <WorldList onJoinWorld={setCurrentWorldId} />
-          {currentWorldId && <Chat worldId={currentWorldId} user={user} />}
-          <Inventory user={user} />
-          <section className="bg-gray-900 p-6 rounded-2xl border-2 border-orange-900/50">
-            <h2 className="text-xl font-heading mb-4 text-orange-400 flex items-center gap-2">
-              <MapPin className="text-orange-400" />
-              World Objects
-            </h2>
-            <div className="flex gap-2 mb-4">
-              <input type="text" placeholder="Object name" className="flex-grow p-3 bg-gray-800 rounded-lg border-2 border-gray-700 text-white" value={newObjectName} onChange={(e) => setNewObjectName(e.target.value)} />
-              <button onClick={handleAddObject} className="p-3 bg-orange-600 rounded-lg text-white font-bold"><Plus /></button>
-            </div>
-            <ul className="space-y-2">
-              {worldObjects.map((obj) => (
-                <li key={obj.id} className="p-3 bg-gray-800 rounded-lg border-2 border-gray-700 text-white flex justify-between items-center">
-                  <span>{obj.name} <span className="text-xs text-gray-400">({obj.type})</span></span>
-                  <div className="flex gap-1">
-                    {obj.type === 'container' && <button onClick={() => alert(`Opening ${obj.name}`)} className="px-2 py-1 bg-blue-600 rounded text-xs">Open</button>}
-                    {obj.type === 'item' && <button onClick={() => alert(`Picking up ${obj.name}`)} className="px-2 py-1 bg-green-600 rounded text-xs">Pick up</button>}
-                    {obj.isHostile && <button onClick={() => startCombat(obj.name)} className="px-2 py-1 bg-red-600 rounded text-xs">Fight</button>}
-                    <button onClick={() => alert(`Inspecting ${obj.name}`)} className="px-2 py-1 bg-gray-600 rounded text-xs">Inspect</button>
+            <button onClick={logout} className="px-3 py-2 bg-gray-900 border border-gray-800 text-gray-400 hover:text-white rounded-xl text-xs font-mono transition">
+              Sign Out
+            </button>
+          </div>
+        </header>
+
+        {showHomeMenu ? (
+          <div className="max-w-5xl mx-auto">
+            <HomeMenu 
+              onStartStoryMode={() => {
+                setGameMode('Story');
+                setShowHomeMenu(false);
+                soundManager.playLevelUp();
+              }}
+              onStartFreeRoam={() => {
+                setGameMode('FreeRoam');
+                setShowHomeMenu(false);
+                soundManager.playLevelUp();
+              }}
+              onSelectTab={(tab) => {
+                setActiveTab(tab);
+                setShowHomeMenu(false);
+              }}
+              userEmail={user.email || "Otaku"}
+              onLogout={logout}
+              isAdmin={isAdmin}
+            />
+          </div>
+        ) : (
+          <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Left Game World Column */}
+            <section className="lg:col-span-2 space-y-6">
+              <div className="bg-black rounded-2xl border-4 border-orange-900/50 min-h-[45vh] lg:min-h-[55vh] relative p-4 flex flex-col justify-between overflow-hidden">
+                <GameViewport 
+                  user={user}
+                  stats={stats}
+                  setStats={setStats}
+                  gameMode={gameMode}
+                  startCombat={startCombat}
+                  viewMode={viewMode}
+                  playerPos={playerPos}
+                  setPlayerPos={setPlayerPos}
+                  onOpenShop={() => setShowShop(true)}
+                />
+              </div>
+
+              {/* Game Mode Module (Story / FreeRoam requested) */}
+              <div className="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 space-y-3">
+                <div className="flex justify-between items-center border-b border-gray-800 pb-2">
+                  <h3 className="text-xs font-bold text-orange-400 font-mono uppercase tracking-wider">
+                    {gameMode === 'Story' ? "📜 Story Campaign Mode" : "🗺️ Sandbox Free Roam Mode"}
+                  </h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setGameMode('Story'); soundManager.playSpecial(); }}
+                      className={`px-2.5 py-1 text-[10px] font-bold rounded uppercase ${
+                        gameMode === 'Story' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+                      }`}
+                    >
+                      Campaign
+                    </button>
+                    <button
+                      onClick={() => { setGameMode('FreeRoam'); soundManager.playSpecial(); }}
+                      className={`px-2.5 py-1 text-[10px] font-bold rounded uppercase ${
+                        gameMode === 'FreeRoam' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
+                      }`}
+                    >
+                      Free Roam
+                    </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-      </main>
-    </div>
+                </div>
+
+                {gameMode === 'Story' ? (
+                  <Story money={stats.money} setMoney={(m) => setStats(prev => ({ ...prev, money: typeof m === 'function' ? m(prev.money) : m }))} />
+                ) : (
+                  <FreeRoam 
+                    onSpawnSlime={() => {
+                      setWorldObjects(prev => [...prev, { id: 'slime_' + Date.now(), name: 'Level 5 Slime Bot', type: 'static', isHostile: true }]);
+                    }} 
+                    onGrantMoney={() => {
+                      setStats(prev => ({ ...prev, money: prev.money + 200 }));
+                    }} 
+                    onWarpTo7Eleven={() => {
+                      setPlayerPos({ x: 35, y: 25 });
+                    }} 
+                  />
+                )}
+              </div>
+
+              {/* Acoustics soundtrack, gravity, and ground floor diagnostics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Soundtrack />
+                <SFX />
+                <Ground playerPos={playerPos} />
+                <Gravity />
+              </div>
+            </section>
+
+            {/* Right Sub-Panels Column */}
+            <div className="space-y-6">
+              {/* Core selection menu tabs */}
+              <Menu activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} />
+
+              {/* Dynamic render of active selection tab */}
+              {activeTab === 'player' && (
+                <div className="space-y-6">
+                  <Player stats={stats} user={user} charClass={activeCharClass} charName={activeCharName} />
+                  <Body status={stats.status} />
+                  <UserPanel 
+                    user={user} 
+                    isAdmin={isAdmin} 
+                    onGiftOtakuPlus={() => {
+                      setStats(prev => ({ ...prev, isOtakuPlus: true }));
+                      alert("🎁 Admin Special: Gifted Otaku+ VIP privileges successfully!");
+                    }}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'worlds' && (
+                <div className="space-y-6">
+                  <Worlds 
+                    currentWorldId={currentWorldId || 'shibuya_cyber'} 
+                    onTravelWorld={(worldId) => setCurrentWorldId(worldId)} 
+                  />
+                  <GameServer />
+                  <Portal playerPos={playerPos} onTeleport={(x, y) => setPlayerPos({ x, y })} />
+                </div>
+              )}
+
+              {activeTab === 'characters' && (
+                <Characters 
+                  money={stats.money} 
+                  setMoney={(m) => setStats(prev => ({ ...prev, money: typeof m === 'function' ? m(prev.money) : m }))} 
+                  onSelectCharacter={(avatar, cls, name) => {
+                    setActiveAvatar(avatar);
+                    setActiveCharClass(cls);
+                    setActiveCharName(name);
+                  }}
+                />
+              )}
+
+              {activeTab === 'soul' && (
+                <Soul 
+                  money={stats.money} 
+                  setMoney={(m) => setStats(prev => ({ ...prev, money: typeof m === 'function' ? m(prev.money) : m }))} 
+                />
+              )}
+
+              {activeTab === 'maps' && (
+                <Maps playerPos={playerPos} onTeleport={(x, y) => setPlayerPos({ x, y })} />
+              )}
+
+              {activeTab === 'settings' && (
+                <Settings 
+                  graphicsPreset={graphicsPreset} 
+                  setGraphicsPreset={setGraphicsPreset} 
+                  keyMap={keyMap} 
+                  setKeyMap={setKeyMap} 
+                />
+              )}
+
+              {activeTab === 'follow' && (
+                <Follow 
+                  money={stats.money} 
+                  onSendGift={(cost) => setStats(prev => ({ ...prev, money: prev.money - cost }))} 
+                />
+              )}
+
+              {activeTab === 'chats' && (
+                <Chats userEmail={user?.email || "Guest_Otaku"} />
+              )}
+
+              {activeTab === 'community' && (
+                <Community 
+                  onAddMoney={(amount) => setStats(prev => ({ ...prev, money: prev.money + amount }))} 
+                />
+              )}
+
+              {activeTab === 'invite' && (
+                <Invite 
+                  onAddMoney={(amount) => setStats(prev => ({ ...prev, money: prev.money + amount }))} 
+                />
+              )}
+
+              {activeTab === 'otakuplus' && (
+                <div>
+                  {checkoutState ? (
+                    <div>
+                      {checkoutState.method === 'gcash' ? (
+                        <GCash 
+                          price={checkoutState.price} 
+                          itemName={checkoutState.itemName} 
+                          onPaymentSuccess={() => {
+                            setStats(prev => ({ ...prev, isOtakuPlus: true }));
+                            setCheckoutState(null);
+                          }} 
+                          onCancel={() => setCheckoutState(null)} 
+                        />
+                      ) : (
+                        <PayPal 
+                          price={checkoutState.price} 
+                          itemName={checkoutState.itemName} 
+                          onPaymentSuccess={() => {
+                            setStats(prev => ({ ...prev, isOtakuPlus: true }));
+                            setCheckoutState(null);
+                          }} 
+                          onCancel={() => setCheckoutState(null)} 
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <OtakuPlus 
+                      isAlreadySubscribed={stats.isOtakuPlus} 
+                      aniCash={aniCash}
+                      onBuyWithAniCash={(cost, tierName) => {
+                        setAniCash(prev => prev - cost);
+                        setStats(prev => ({ ...prev, isOtakuPlus: true }));
+                        soundManager.playLevelUp();
+                      }}
+                      onSelectPayment={(method, amount, tierName) => {
+                        setCheckoutState({ method, price: amount, itemName: tierName });
+                      }} 
+                    />
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'subscribed' && (
+                <Subscribed 
+                  onAddMoney={(amount) => setStats(prev => ({ ...prev, money: prev.money + amount }))} 
+                  onGrantMedicine={() => setStats(prev => ({ ...prev, inventory: { ...prev.inventory, medicine: prev.inventory.medicine + 1 } }))} 
+                />
+              )}
+
+              {activeTab === 'ranking' && (
+                <Ranking />
+              )}
+
+              {activeTab === 'top' && (
+                <Top />
+              )}
+
+              {activeTab === 'mic' && (
+                <VoiceMic />
+              )}
+
+              {activeTab === 'names' && (
+                <Names 
+                  charName={activeCharName} 
+                  onSaveName={(name) => setActiveCharName(name)} 
+                />
+              )}
+
+              {activeTab === 'anicash' && (
+                <AniCash 
+                  money={stats.money}
+                  onAddMoney={(amount) => setStats(prev => ({ ...prev, money: prev.money + amount }))}
+                  onSpendMoney={(amount) => {
+                    if (stats.money >= amount) {
+                      setStats(prev => ({ ...prev, money: prev.money - amount }));
+                      return true;
+                    }
+                    return false;
+                  }}
+                />
+              )}
+
+              {activeTab === 'jobs' && (
+                <Job 
+                  onEarnAniCash={(amount) => setAniCash(prev => prev + amount)}
+                  combatPower={stats.money * 4 + 150}
+                  instanceSettings={instanceSettings}
+                />
+              )}
+
+              {activeTab === 'earn' && (
+                <Earn 
+                  onEarnAniCash={(amount) => setAniCash(prev => prev + amount)}
+                />
+              )}
+
+              {activeTab === 'grind' && (
+                <Grind 
+                  onGainExp={(amount) => alert(`Loot acquired! Gained +${amount} Character Experience Shards.`)}
+                  onAddMoney={(amount) => setStats(prev => ({ ...prev, money: prev.money + amount }))}
+                />
+              )}
+
+              {activeTab === 'pity' && (
+                <Pity 
+                  pityCount={pityCount}
+                />
+              )}
+
+              {activeTab === 'gacha' && (
+                <Gacha 
+                  aniCash={aniCash}
+                  onSpendAniCash={(amount) => {
+                    if (aniCash >= amount) {
+                      setAniCash(prev => prev - amount);
+                      return true;
+                    }
+                    return false;
+                  }}
+                  pityCount={pityCount}
+                  onIncrementPity={(amount) => setPityCount(prev => prev + amount)}
+                  onResetPity={() => setPityCount(0)}
+                  onRewardCharacter={(name) => {
+                    if (!unlockedCharacters.includes(name)) {
+                      setUnlockedCharacters(prev => [...prev, name]);
+                    }
+                  }}
+                />
+              )}
+
+              {activeTab === 'clothes' && (
+                <Clothes 
+                  equippedOutfit={equippedOutfit}
+                  onEquipOutfit={(name) => setEquippedOutfit(name)}
+                />
+              )}
+
+              {activeTab === 'premiumchara' && (
+                <PremiumChara 
+                  unlockedCharacters={unlockedCharacters}
+                  onUnlockPremiumCharacter={(name) => {
+                    setUnlockedCharacters(prev => [...prev, name]);
+                    setActiveCharName(name);
+                  }}
+                />
+              )}
+
+              {activeTab === 'gachachara' && (
+                <GachaChara />
+              )}
+
+              {activeTab === 'gachamechanic' && (
+                <GachaMechanic />
+              )}
+
+              {activeTab === 'characterlist' && (
+                <CharacterList 
+                  activeCharacter={activeCharName}
+                  onSelectCharacter={(name) => setActiveCharName(name)}
+                />
+              )}
+
+              {activeTab === 'worldslist' && (
+                <WorldsList 
+                  currentWorldId={currentWorldId || "shibuya_cyber"}
+                  onTravelWorld={(worldId) => setCurrentWorldId(worldId)}
+                  instanceSettings={instanceSettings}
+                  onUpdateSettings={setInstanceSettings}
+                />
+              )}
+
+              {activeTab === 'admin' && isAdmin && (
+                <div className="space-y-4">
+                  <AdminPanel godMode={godMode} setGodMode={setGodMode} />
+                  <div className="bg-gray-950 p-4 rounded-2xl border-2 border-red-500/30 font-mono text-xs space-y-3">
+                    <h3 className="text-red-400 font-extrabold uppercase">Super Admin Panel</h3>
+                    <div className="space-y-2">
+                      <button 
+                        onClick={() => {
+                          setStats(prev => ({ ...prev, money: prev.money + 1000 }));
+                          soundManager.playLevelUp();
+                        }}
+                        className="w-full py-2 bg-red-800 text-white rounded font-bold uppercase hover:bg-red-700 transition"
+                      >
+                        Gift $1000 Premium Coins
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setStats(prev => ({ ...prev, isOtakuPlus: !prev.isOtakuPlus }));
+                          soundManager.playSpecial();
+                        }}
+                        className="w-full py-2 bg-emerald-800 text-white rounded font-bold uppercase hover:bg-emerald-700 transition"
+                      >
+                        Toggle Otaku+ Subscription State
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Standard original sub-systems for backup and reference */}
+              <div className="pt-4 border-t border-gray-900 space-y-4">
+                <AvatarSystem />
+                <MicrophoneSystem />
+                <Leaderboard />
+                <Inventory user={user} />
+                
+                {/* World Objects tracker */}
+                <section className="bg-gray-900 p-4 rounded-2xl border border-gray-800">
+                  <h2 className="text-xs font-bold text-orange-400 flex items-center gap-1.5 uppercase font-mono tracking-wide mb-3">
+                    <MapPin className="text-orange-400" size={14} /> World Objects Map Sites
+                  </h2>
+                  <div className="flex gap-2 mb-3">
+                    <input 
+                      type="text" 
+                      placeholder="Enter new object name" 
+                      className="flex-grow p-2 bg-gray-950 rounded-lg border border-gray-800 text-white text-xs focus:outline-none" 
+                      value={newObjectName} 
+                      onChange={(e) => setNewObjectName(e.target.value)} 
+                    />
+                    <button onClick={handleAddObject} className="p-2 bg-orange-600 rounded-lg text-white font-bold text-xs"><Plus size={14} /></button>
+                  </div>
+                  <ul className="space-y-1.5 text-xs font-mono max-h-40 overflow-y-auto">
+                    {worldObjects.map((obj) => (
+                      <li key={obj.id} className="p-2 bg-gray-950 rounded border border-gray-800/60 text-white flex justify-between items-center">
+                        <span>{obj.name} <span className="text-[10px] text-gray-500">({obj.type})</span></span>
+                        <div className="flex gap-1">
+                          {obj.type === 'container' && <button onClick={() => alert(`Opening ${obj.name}`)} className="px-1.5 py-0.5 bg-blue-600 rounded text-[10px]">Open</button>}
+                          {obj.type === 'item' && <button onClick={() => alert(`Picking up ${obj.name}`)} className="px-1.5 py-0.5 bg-green-600 rounded text-[10px]">Pick up</button>}
+                          {obj.isHostile && <button onClick={() => startCombat(obj.name)} className="px-1.5 py-0.5 bg-red-600 rounded text-[10px]">Fight</button>}
+                          <button onClick={() => alert(`Inspecting ${obj.name}`)} className="px-1.5 py-0.5 bg-gray-750 rounded text-[10px]">Inspect</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+
+            </div>
+          </main>
+        )}
+      </div>
+    </VFX>
   );
 }
 
