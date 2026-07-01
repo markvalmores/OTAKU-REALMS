@@ -2,7 +2,8 @@ import React from "react";
 import { 
   User, Globe, Compass, Users, Flame, Settings, ShieldAlert, Award,
   Heart, MessageSquare, Share2, Sparkles, Trophy, Mic, Eye, Server, RefreshCw,
-  Briefcase, TrendingUp, Swords, Coins, BookOpen, HelpCircle, Shirt, Crown, List
+  Briefcase, TrendingUp, Swords, Coins, BookOpen, HelpCircle, Shirt, Crown, List,
+  Maximize, Grid, Film, Activity, Key, UserCheck, Star, Navigation, MapPin
 } from "lucide-react";
 
 interface MenuProps {
@@ -19,6 +20,22 @@ export default function Menu({ activeTab, setActiveTab, isAdmin }: MenuProps) {
         { id: "vrm", label: "VRM Avatar Engine", icon: Shirt },
         { id: "glb", label: "GLB Environment Mesh", icon: Globe },
         { id: "stages", label: "GTA Stages Hub", icon: Compass },
+        { id: "gtac", label: "GTA Chinatown Wars", icon: Navigation },
+        { id: "vrchat", label: "VRChat World Lobbies", icon: MapPin },
+      ]
+    },
+    {
+      title: "🎭 3D Avatar & Rigging Studio",
+      items: [
+        { id: "3d", label: "3D Graphics Preset", icon: Maximize },
+        { id: "2.5d", label: "2.5D Isometric", icon: Grid },
+        { id: "animation", label: "Animation Timeline", icon: Film },
+        { id: "bones", label: "Rigging Bones", icon: Activity },
+        { id: "joints", label: "Joint Constraints", icon: Key },
+        { id: "avatar", label: "Biometric Customizer", icon: UserCheck },
+        { id: "avatars", label: "Roster Catalog", icon: Star },
+        { id: "useravatar", label: "Identity Passport", icon: User },
+        { id: "useravatars", label: "Multi-Slot Saves", icon: Users },
       ]
     },
     {

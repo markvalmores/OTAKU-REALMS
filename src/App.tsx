@@ -57,6 +57,17 @@ import FreeRoam from "./components/freeroam";
 import VRMSystem from "./components/vrm";
 import GLBSystem from "./components/glb";
 import StagesSystem from "./components/stages";
+import ThreeDSystem from "./components/3d";
+import TwoHalfDSystem from "./components/2.5d";
+import AnimationSystem from "./components/animation";
+import BonesSystem from "./components/bones";
+import JointsSystem from "./components/joints";
+import AvatarProfileSystem from "./components/avatar";
+import AvatarsCatalog from "./components/avatars";
+import UserAvatarSystem from "./components/useravatar";
+import UserAvatarsSystem from "./components/useravatars";
+import GTAChinatownSystem from "./components/gtac";
+import VRChatWorldSystem from "./components/vrchat";
 
 // Grouped new modular components
 import Invite from "./components/invite";
@@ -441,7 +452,7 @@ export default function App() {
             </section>
 
             {/* Right Sub-Panels Column */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:sticky lg:top-4 h-fit">
               {/* Core selection menu tabs */}
               <Menu activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} />
 
@@ -466,6 +477,54 @@ export default function App() {
                   activeStage={activeStage}
                   onTravelStage={setActiveStage}
                 />
+              )}
+
+              {activeTab === 'gtac' && (
+                <GTAChinatownSystem 
+                  activeVRM={activeVRM}
+                  activeGLB={activeGLB}
+                  activeStage={activeStage}
+                />
+              )}
+
+              {activeTab === 'vrchat' && (
+                <VRChatWorldSystem />
+              )}
+
+              {activeTab === '3d' && (
+                <ThreeDSystem />
+              )}
+
+              {activeTab === '2.5d' && (
+                <TwoHalfDSystem />
+              )}
+
+              {activeTab === 'animation' && (
+                <AnimationSystem />
+              )}
+
+              {activeTab === 'bones' && (
+                <BonesSystem />
+              )}
+
+              {activeTab === 'joints' && (
+                <JointsSystem />
+              )}
+
+              {activeTab === 'avatar' && (
+                <AvatarProfileSystem />
+              )}
+
+              {activeTab === 'avatars' && (
+                <AvatarsCatalog />
+              )}
+
+              {activeTab === 'useravatar' && (
+                <UserAvatarSystem />
+              )}
+
+              {activeTab === 'useravatars' && (
+                <UserAvatarsSystem />
               )}
 
               {activeTab === 'player' && (

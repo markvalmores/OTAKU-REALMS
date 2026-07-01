@@ -5,3 +5,8 @@
   --font-heading: "Bangers", cursive;
   --font-sans: "Outfit", sans-serif;
 }
+
+html {
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+}
