@@ -96,6 +96,7 @@ export default function Menu({ activeTab, setActiveTab, isAdmin }: MenuProps) {
       items: [
         { id: "mic", label: "Voice Mic", icon: Mic },
         { id: "names", label: "Hero Generator", icon: RefreshCw },
+        { id: "profile_banner", label: "Profile & Banner", icon: User },
       ]
     }
   ];

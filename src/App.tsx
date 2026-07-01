@@ -68,6 +68,7 @@ import UserAvatarSystem from "./components/useravatar";
 import UserAvatarsSystem from "./components/useravatars";
 import GTAChinatownSystem from "./components/gtac";
 import VRChatWorldSystem from "./components/vrchat";
+import ProfileBannerEditor from "./components/profile_banner";
 
 // Grouped new modular components
 import Invite from "./components/invite";
@@ -133,6 +134,12 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("player");
   const [checkoutState, setCheckoutState] = useState<{ method: 'gcash' | 'paypal'; price: number; itemName: string } | null>(null);
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
+
+  // Profile and banner customization states (JPG, PNG, GIF, BMP for avatar; MP4, JPG, PNG for banner)
+  const [avatarUrl, setAvatarUrl] = useState<string>("https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=200&h=200");
+  const [bannerUrl, setBannerUrl] = useState<string>("https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?auto=format&fit=crop&w=800&h=300");
+  const [bannerType, setBannerType] = useState<"image" | "video">("image");
+  const [bannerDuration, setBannerDuration] = useState<number>(0);
 
   // Modular state for new systems
   const [pityCount, setPityCount] = useState(0);
@@ -200,6 +207,32 @@ export default function App() {
         const docRef = doc(db, "characterStats", currentUser.uid);
         const docSnap = await getDoc(docRef);
         setHasCharacter(docSnap.exists());
+
+        // Fetch custom profile images and banners
+        try {
+          const profileRef = doc(db, "userProfiles", currentUser.uid);
+          const profileSnap = await getDoc(profileRef);
+          if (profileSnap.exists()) {
+            const data = profileSnap.data();
+            if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+            if (data.bannerUrl) setBannerUrl(data.bannerUrl);
+            if (data.bannerType) setBannerType(data.bannerType);
+            if (data.bannerDuration) setBannerDuration(data.bannerDuration);
+          } else {
+            // Check local storage fallback
+            const localAvatar = localStorage.getItem(`profile_avatar_${currentUser.uid}`);
+            const localBanner = localStorage.getItem(`profile_banner_${currentUser.uid}`);
+            const localBannerType = localStorage.getItem(`profile_banner_type_${currentUser.uid}`);
+            const localDuration = localStorage.getItem(`profile_banner_duration_${currentUser.uid}`);
+
+            if (localAvatar) setAvatarUrl(localAvatar);
+            if (localBanner) setBannerUrl(localBanner);
+            if (localBannerType) setBannerType(localBannerType as "image" | "video");
+            if (localDuration) setBannerDuration(parseFloat(localDuration));
+          }
+        } catch (e) {
+          console.error("Error fetching user profiles:", e);
+        }
       }
     });
     return unsubscribe;
@@ -231,6 +264,93 @@ export default function App() {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="relative min-h-screen flex flex-col items-center justify-center text-white p-6 overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none select-none">
+          <iframe
+            src="https://www.youtube.com/embed/zQGQLEE1nQs?autoplay=1&loop=1&mute=1&playlist=zQGQLEE1nQs&controls=0&showinfo=0&autohide=1&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3"
+            className="w-full h-full object-cover pointer-events-none select-none"
+            style={{ minWidth: '100vw', minHeight: '100vh', pointerEvents: 'none' }}
+            allow="autoplay; encrypted-media"
+            title="Background Video"
+          />
+        </div>
+        
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 bg-gray-950/85 p-6 md:p-10 rounded-3xl backdrop-blur-md border-2 border-orange-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-w-4xl w-full">
+          {/* Left Side: Game Branding, Hero Image, Notification Details, and Donate Button */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-5 max-w-sm w-full">
+            <img src={heroImage} alt="Hero" className="rounded-2xl shadow-2xl w-40 h-40 md:w-48 md:h-48 object-cover border-4 border-orange-500 mx-auto md:mx-0" />
+            <div>
+              <h1 className="text-4xl md:text-5xl font-heading text-orange-500 font-extrabold tracking-tight">Otaku Realms</h1>
+              <p className="text-xs text-gray-400 font-mono mt-1">Select secure access channel to connect to Virtual Realms</p>
+            </div>
+            
+            <p className="text-gray-300 text-xs font-sans leading-relaxed border-l-2 border-orange-500 pl-3">
+              Notification Update Version: 0 Demo Version - I am trying to make this work for now and see if people play it.
+            </p>
+
+            {/* Developer Credits Block */}
+            <div className="text-[11px] font-mono text-gray-350 border-l-2 border-amber-500 pl-3 uppercase tracking-wide">
+              Game Made by <span className="text-orange-400 font-bold">Usagyuun VTuber</span> and <span className="text-orange-400 font-bold">Mark David Valmores</span>
+            </div>
+            
+            <a
+              href="https://streamlabs.com/usagyuunvtuber/tip"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2.5 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 hover:from-amber-200 hover:to-amber-500 text-gray-950 font-black tracking-wider text-[11px] uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200 hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center gap-2 mx-auto md:mx-0"
+            >
+              ⭐ DONATE TO KEEP US GOING ⭐
+            </a>
+          </div>
+
+          {/* Vertical divider on desktop */}
+          <div className="hidden md:block w-[1px] bg-gray-800 self-stretch my-2"></div>
+
+          {/* Right Side: Login / Register Form */}
+          <div className="w-full max-w-md space-y-5">
+            <div className="grid grid-cols-2 gap-2 border-b border-gray-800 pb-4">
+              <button
+                onClick={() => setAuthView('login')}
+                className={`py-2 rounded-lg text-xs font-bold font-mono uppercase transition ${
+                  authView === 'login' ? 'bg-orange-600 text-white shadow' : 'bg-gray-950 text-gray-500 hover:bg-gray-850'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => setAuthView('register')}
+                className={`py-2 rounded-lg text-xs font-bold font-mono uppercase transition ${
+                  authView === 'register' ? 'bg-orange-600 text-white shadow' : 'bg-gray-950 text-gray-500 hover:bg-gray-850'
+                }`}
+              >
+                Sign Up
+              </button>
+            </div>
+
+            {authView === 'login' ? (
+              <Login 
+                onSuccess={(u, isAdm) => {
+                  setUser(u);
+                  if (isAdm) {
+                    setIsAdminOverride(true);
+                    setStats(prev => ({ ...prev, isOtakuPlus: true, money: prev.money + 500 }));
+                  }
+                }} 
+              />
+            ) : (
+              <Register 
+                onSuccess={(u) => setUser(u)} 
+                onNavigateLogin={() => setAuthView('login')}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (showStartScreen) {
     return (
       <div className="relative min-h-screen flex flex-col items-center justify-center text-white p-6 overflow-hidden">
@@ -243,75 +363,40 @@ export default function App() {
             title="Background Video"
           />
         </div>
-        <div className="relative z-10 flex flex-col items-center justify-center bg-gray-950/70 p-10 rounded-3xl backdrop-blur-md border-2 border-orange-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-          <img src={heroImage} alt="Hero" className="mb-8 rounded-2xl shadow-2xl w-64 h-64 object-cover border-4 border-orange-500" />
-          <h1 className="text-6xl font-heading text-orange-500 mb-8 font-extrabold tracking-tight">Otaku Realms</h1>
-          <p className="text-gray-300 text-sm mb-6 max-w-sm text-center font-sans">Notification Update Version: 0 Demo Version - I am trying to make this work for now and see if people play it.</p>
+        <div className="relative z-10 flex flex-col items-center justify-center bg-gray-950/80 p-10 rounded-3xl backdrop-blur-md border-2 border-orange-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-w-lg text-center space-y-6">
+          <img src={heroImage} alt="Hero" className="rounded-2xl shadow-2xl w-56 h-56 object-cover border-4 border-orange-500" />
+          
+          <div className="space-y-1">
+            <h1 className="text-5xl font-heading text-orange-500 font-extrabold tracking-tight">Otaku Realms</h1>
+            <p className="text-xs text-gray-400 font-mono">Welcome back, <span className="text-orange-400">{user.email}</span></p>
+          </div>
+          
+          <p className="text-gray-300 text-sm max-w-sm font-sans leading-relaxed border-y border-gray-800 py-3">
+            Notification Update Version: 0 Demo Version - I am trying to make this work for now and see if people play it.
+          </p>
+
+          {/* Developer Credits Block */}
+          <div className="text-[11px] font-mono text-gray-350 border-l-2 border-amber-500 pl-3 uppercase tracking-wide text-center max-w-xs mx-auto">
+            Game Made by <span className="text-orange-400 font-bold">Usagyuun VTuber</span> and <span className="text-orange-400 font-bold">Mark David Valmores</span>
+          </div>
+          
           <button 
             onClick={() => {
               setShowStartScreen(false);
             }}
-            className="px-10 py-4 bg-orange-600 rounded-full text-2xl font-bold hover:bg-orange-500 active:scale-95 hover:scale-105 transition-all duration-150 shadow-[0_0_20px_rgba(234,88,12,0.4)] cursor-pointer z-20 select-none"
+            className="w-full py-4 bg-orange-600 rounded-full text-xl font-bold hover:bg-orange-500 active:scale-95 hover:scale-105 transition-all duration-150 shadow-[0_0_20px_rgba(234,88,12,0.4)] cursor-pointer select-none"
           >
             Begin Journey (Enter Realms)
           </button>
+          
           <a
             href="https://streamlabs.com/usagyuunvtuber/tip"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 px-8 py-3 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 hover:from-amber-200 hover:to-amber-500 text-gray-950 font-black tracking-wider text-xs uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200 hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center gap-2"
+            className="px-8 py-3 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 hover:from-amber-200 hover:to-amber-500 text-gray-950 font-black tracking-wider text-xs uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200 hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center gap-2 justify-center"
           >
             ⭐ DONATE TO KEEP US GOING ⭐
           </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-4">
-        <div className="bg-gray-900/90 p-8 rounded-2xl shadow-2xl border-2 border-orange-500/30 w-full max-w-md space-y-6">
-          <div className="text-center space-y-1">
-            <h1 className="text-4xl font-heading text-orange-500 font-extrabold tracking-tighter uppercase">Otaku Realms</h1>
-            <p className="text-xs text-gray-400 font-mono">Select secure access channel to connect to Virtual Realms</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 border-b border-gray-800 pb-4">
-            <button
-              onClick={() => setAuthView('login')}
-              className={`py-2 rounded-lg text-xs font-bold font-mono uppercase transition ${
-                authView === 'login' ? 'bg-orange-600 text-white shadow' : 'bg-gray-950 text-gray-500 hover:bg-gray-850'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setAuthView('register')}
-              className={`py-2 rounded-lg text-xs font-bold font-mono uppercase transition ${
-                authView === 'register' ? 'bg-orange-600 text-white shadow' : 'bg-gray-950 text-gray-500 hover:bg-gray-850'
-              }`}
-            >
-              Sign Up
-            </button>
-          </div>
-
-          {authView === 'login' ? (
-            <Login 
-              onSuccess={(u, isAdm) => {
-                setUser(u);
-                if (isAdm) {
-                  setIsAdminOverride(true);
-                  setStats(prev => ({ ...prev, isOtakuPlus: true, money: prev.money + 500 }));
-                }
-              }} 
-            />
-          ) : (
-            <Register 
-              onSuccess={(u) => setUser(u)} 
-              onNavigateLogin={() => setAuthView('login')}
-            />
-          )}
         </div>
       </div>
     );
@@ -529,7 +614,15 @@ export default function App() {
 
               {activeTab === 'player' && (
                 <div className="space-y-6">
-                  <Player stats={stats} user={user} charClass={activeCharClass} charName={activeCharName} />
+                  <Player 
+                    stats={stats} 
+                    user={user} 
+                    charClass={activeCharClass} 
+                    charName={activeCharName} 
+                    customAvatarUrl={avatarUrl}
+                    customBannerUrl={bannerUrl}
+                    customBannerType={bannerType}
+                  />
                   <Body status={stats.status} />
                   <UserPanel 
                     user={user} 
@@ -582,6 +675,18 @@ export default function App() {
                   setGraphicsPreset={setGraphicsPreset} 
                   keyMap={keyMap} 
                   setKeyMap={setKeyMap} 
+                />
+              )}
+
+              {activeTab === 'profile_banner' && user && (
+                <ProfileBannerEditor 
+                  user={user}
+                  onProfileUpdated={(updated) => {
+                    setAvatarUrl(updated.avatarUrl);
+                    setBannerUrl(updated.bannerUrl);
+                    setBannerType(updated.bannerType);
+                    setBannerDuration(updated.bannerDuration);
+                  }}
                 />
               )}
 
