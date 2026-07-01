@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "World": {
+      "title": "World",
+      "description": "A game world instance",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID of the world" },
+        "name": { "type": "string", "description": "Name of the world" },
+        "description": { "type": "string", "description": "Description of the world" },
+        "playerCount": { "type": "number", "description": "Current number of players" },
+        "maxPlayers": { "type": "number", "description": "Maximum allowed players" }
+      },
+      "required": ["id", "name", "playerCount", "maxPlayers"]
+    }
+  },
+  "firestore": {
+    "/worlds/{worldId}": {
+      "schema": "World",
+      "description": "Worlds collection"
+    }
+  }
+}

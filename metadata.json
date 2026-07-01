@@ -1,0 +1,7 @@
+{
+  "name": "Otaku Realms",
+  "description": "A foundational engine for tabletop-inspired open world simulation.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
