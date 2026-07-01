@@ -203,39 +203,44 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        const docRef = doc(db, "characterStats", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        setHasCharacter(docSnap.exists());
+      try {
+        setUser(currentUser);
+        if (currentUser) {
+          const docRef = doc(db, "characterStats", currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          setHasCharacter(docSnap.exists());
 
-        // Fetch custom profile images and banners
-        try {
-          const profileRef = doc(db, "userProfiles", currentUser.uid);
-          const profileSnap = await getDoc(profileRef);
-          if (profileSnap.exists()) {
-            const data = profileSnap.data();
-            if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
-            if (data.bannerUrl) setBannerUrl(data.bannerUrl);
-            if (data.bannerType) setBannerType(data.bannerType);
-            if (data.bannerDuration) setBannerDuration(data.bannerDuration);
-          } else {
-            // Check local storage fallback
-            const localAvatar = localStorage.getItem(`profile_avatar_${currentUser.uid}`);
-            const localBanner = localStorage.getItem(`profile_banner_${currentUser.uid}`);
-            const localBannerType = localStorage.getItem(`profile_banner_type_${currentUser.uid}`);
-            const localDuration = localStorage.getItem(`profile_banner_duration_${currentUser.uid}`);
+          // Fetch custom profile images and banners
+          try {
+            const profileRef = doc(db, "userProfiles", currentUser.uid);
+            const profileSnap = await getDoc(profileRef);
+            if (profileSnap.exists()) {
+              const data = profileSnap.data();
+              if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+              if (data.bannerUrl) setBannerUrl(data.bannerUrl);
+              if (data.bannerType) setBannerType(data.bannerType);
+              if (data.bannerDuration) setBannerDuration(data.bannerDuration);
+            } else {
+              // Check local storage fallback
+              const localAvatar = localStorage.getItem(`profile_avatar_${currentUser.uid}`);
+              const localBanner = localStorage.getItem(`profile_banner_${currentUser.uid}`);
+              const localBannerType = localStorage.getItem(`profile_banner_type_${currentUser.uid}`);
+              const localDuration = localStorage.getItem(`profile_banner_duration_${currentUser.uid}`);
 
-            if (localAvatar) setAvatarUrl(localAvatar);
-            if (localBanner) setBannerUrl(localBanner);
-            if (localBannerType) setBannerType(localBannerType as "image" | "video");
-            if (localDuration) setBannerDuration(parseFloat(localDuration));
+              if (localAvatar) setAvatarUrl(localAvatar);
+              if (localBanner) setBannerUrl(localBanner);
+              if (localBannerType) setBannerType(localBannerType as "image" | "video");
+              if (localDuration) setBannerDuration(parseFloat(localDuration));
+            }
+          } catch (e) {
+            console.error("Error fetching user profiles:", e);
           }
-        } catch (e) {
-          console.error("Error fetching user profiles:", e);
         }
+      } catch (err) {
+        console.error("Critical error in onAuthStateChanged:", err);
+      } finally {
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
     });
     return unsubscribe;
   }, []);
