@@ -54,6 +54,9 @@ import Ground from "./components/ground";
 import Gravity from "./components/gravity";
 import Story from "./components/story";
 import FreeRoam from "./components/freeroam";
+import VRMSystem from "./components/vrm";
+import GLBSystem from "./components/glb";
+import StagesSystem from "./components/stages";
 
 // Grouped new modular components
 import Invite from "./components/invite";
@@ -139,6 +142,33 @@ export default function App() {
     customWorldName3: "Kyoto Fantasy Shrine",
   });
 
+  const [activeVRM, setActiveVRM] = useState({
+    id: "vrm_kuro",
+    name: "Kuro Shinobi .vrm",
+    fileSize: "12.4 MB",
+    polyCount: 42350,
+    bones: 64,
+    expression: "Neutral"
+  });
+
+  const [activeGLB, setActiveGLB] = useState({
+    id: "glb_shibuya",
+    name: "Shibuya_CityGrid_Lowpoly.glb",
+    category: "Environment" as const,
+    fileSize: "34.5 MB",
+    vertCount: 145000,
+    colliders: 112
+  });
+
+  const [activeStage, setActiveStage] = useState({
+    id: "stage_shibuya",
+    name: "Shibuya City Neon Block",
+    difficulty: "Moderate",
+    weather: "Rainy",
+    timeOfDay: "Midnight",
+    trafficLevel: "Apocalyptic Chaos" as const
+  });
+
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'first' ? 'second' : prev === 'second' ? 'third' : 'first');
   };
@@ -193,30 +223,32 @@ export default function App() {
   if (showStartScreen) {
     return (
       <div className="relative min-h-screen flex flex-col items-center justify-center text-white p-6 overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 pointer-events-none select-none">
           <iframe
             src="https://www.youtube.com/embed/zQGQLEE1nQs?autoplay=1&loop=1&mute=1&playlist=zQGQLEE1nQs&controls=0&showinfo=0&autohide=1&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3"
-            className="w-full h-full object-cover"
-            style={{ minWidth: '100vw', minHeight: '100vh' }}
+            className="w-full h-full object-cover pointer-events-none select-none"
+            style={{ minWidth: '100vw', minHeight: '100vh', pointerEvents: 'none' }}
             allow="autoplay; encrypted-media"
             title="Background Video"
           />
         </div>
-        <div className="relative z-10 flex flex-col items-center justify-center bg-gray-950/50 p-10 rounded-3xl backdrop-blur-sm border-2 border-orange-500/30">
+        <div className="relative z-10 flex flex-col items-center justify-center bg-gray-950/70 p-10 rounded-3xl backdrop-blur-md border-2 border-orange-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
           <img src={heroImage} alt="Hero" className="mb-8 rounded-2xl shadow-2xl w-64 h-64 object-cover border-4 border-orange-500" />
-          <h1 className="text-6xl font-heading text-orange-500 mb-8">Otaku Realms</h1>
-          <p className="text-gray-400 text-sm mb-6 max-w-sm text-center">Notification Update Version: 0 Demo Version - I am trying to make this work for now and see if people play it.</p>
+          <h1 className="text-6xl font-heading text-orange-500 mb-8 font-extrabold tracking-tight">Otaku Realms</h1>
+          <p className="text-gray-300 text-sm mb-6 max-w-sm text-center font-sans">Notification Update Version: 0 Demo Version - I am trying to make this work for now and see if people play it.</p>
           <button 
-            onClick={() => setShowStartScreen(false)}
-            className="px-10 py-4 bg-orange-600 rounded-full text-2xl font-bold hover:bg-orange-700 transition"
+            onClick={() => {
+              setShowStartScreen(false);
+            }}
+            className="px-10 py-4 bg-orange-600 rounded-full text-2xl font-bold hover:bg-orange-500 active:scale-95 hover:scale-105 transition-all duration-150 shadow-[0_0_20px_rgba(234,88,12,0.4)] cursor-pointer z-20 select-none"
           >
-            Enter Virtual Realms
+            Begin Journey (Enter Realms)
           </button>
           <a
             href="https://streamlabs.com/usagyuunvtuber/tip"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 px-8 py-3 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 hover:from-amber-200 hover:to-amber-500 text-gray-950 font-black tracking-wider text-xs uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200 hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center gap-2"
+            className="mt-6 px-8 py-3 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 hover:from-amber-200 hover:to-amber-500 text-gray-950 font-black tracking-wider text-xs uppercase rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200 hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center gap-2"
           >
             ⭐ DONATE TO KEEP US GOING ⭐
           </a>
@@ -350,6 +382,9 @@ export default function App() {
                   playerPos={playerPos}
                   setPlayerPos={setPlayerPos}
                   onOpenShop={() => setShowShop(true)}
+                  activeVRM={activeVRM}
+                  activeGLB={activeGLB}
+                  activeStage={activeStage}
                 />
               </div>
 
@@ -411,6 +446,28 @@ export default function App() {
               <Menu activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} />
 
               {/* Dynamic render of active selection tab */}
+              {activeTab === 'vrm' && (
+                <VRMSystem 
+                  activeVRM={activeVRM}
+                  onSelectCharacter={setActiveVRM}
+                  unlockedCharacters={unlockedCharacters}
+                />
+              )}
+
+              {activeTab === 'glb' && (
+                <GLBSystem 
+                  activeGLB={activeGLB}
+                  onSelectAsset={setActiveGLB}
+                />
+              )}
+
+              {activeTab === 'stages' && (
+                <StagesSystem 
+                  activeStage={activeStage}
+                  onTravelStage={setActiveStage}
+                />
+              )}
+
               {activeTab === 'player' && (
                 <div className="space-y-6">
                   <Player stats={stats} user={user} charClass={activeCharClass} charName={activeCharName} />

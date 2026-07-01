@@ -14,6 +14,14 @@ interface MenuProps {
 export default function Menu({ activeTab, setActiveTab, isAdmin }: MenuProps) {
   const categories = [
     {
+      title: "🚘 GTA Free Roam Sandbox",
+      items: [
+        { id: "vrm", label: "VRM Avatar Engine", icon: Shirt },
+        { id: "glb", label: "GLB Environment Mesh", icon: Globe },
+        { id: "stages", label: "GTA Stages Hub", icon: Compass },
+      ]
+    },
+    {
       title: "🎮 Game Operations",
       items: [
         { id: "player", label: "Player Stats", icon: User },

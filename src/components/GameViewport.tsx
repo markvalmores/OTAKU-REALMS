@@ -29,6 +29,9 @@ interface GameViewportProps {
   playerPos: { x: number; y: number };
   setPlayerPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
   onOpenShop: () => void;
+  activeVRM?: { name: string; id: string; polyCount: number; bones: number; expression: string };
+  activeGLB?: { name: string; id: string; vertCount: number; colliders: number; category: string };
+  activeStage?: { name: string; id: string; difficulty: string; weather: string; timeOfDay: string; trafficLevel: string };
 }
 
 export default function GameViewport({
@@ -41,6 +44,9 @@ export default function GameViewport({
   playerPos,
   setPlayerPos,
   onOpenShop,
+  activeVRM,
+  activeGLB,
+  activeStage,
 }: GameViewportProps) {
   // Config state
   const [deviceType, setDeviceType] = useState<'PC' | 'Mobile' | 'Console'>('PC');
@@ -715,18 +721,53 @@ export default function GameViewport({
           const nearSlime2 = Math.hypot(playerPos.x - 75, playerPos.y - 20) < 8;
 
           return (
-            <div className="absolute top-3 left-3 bg-black/70 p-3 rounded-lg text-white font-mono text-[10px] z-30 pointer-events-auto border border-orange-500/30">
-              <div className="text-orange-400 font-bold mb-1 border-b border-gray-800 pb-1">COORDINATES & TARGETS</div>
-              <div>X: {Math.round(playerPos.x)} | Y: {Math.round(playerPos.y)}</div>
-              <div>State: <b className={stats.status === 'healthy' ? 'text-green-400' : 'text-red-400'}>{stats.status.toUpperCase()}</b></div>
-              
-              <div className="mt-2 space-y-1">
-                {nearMart && <div className="text-amber-400 animate-pulse">🛒 Near 7-Eleven Shop! Press {keyMap.interact} or [A] to enter!</div>}
-                {nearGuild && <div className="text-indigo-400 animate-pulse">📜 Near Quest Guild! Press {keyMap.interact} or [A] to talk!</div>}
-                {(nearChest1 || nearChest2) && <div className="text-yellow-400 animate-bounce">📦 Found Gold Loot! Press {keyMap.interact} or [A] to unlock!</div>}
-                {(nearSlime1 || nearSlime2) && <div className="text-red-400 animate-pulse">👹 Monster Nearby! Press {keyMap.attack} or [X] to Fight!</div>}
+            <>
+              {/* Coordinates & targets Box */}
+              <div className="absolute top-3 left-3 bg-black/75 p-3 rounded-lg text-white font-mono text-[10px] z-30 pointer-events-auto border border-orange-500/30">
+                <div className="text-orange-400 font-bold mb-1 border-b border-gray-800 pb-1">COORDINATES & TARGETS</div>
+                <div>X: {Math.round(playerPos.x)} | Y: {Math.round(playerPos.y)}</div>
+                <div>State: <b className={stats.status === 'healthy' ? 'text-green-400' : 'text-red-400'}>{stats.status.toUpperCase()}</b></div>
+                
+                <div className="mt-2 space-y-1">
+                  {nearMart && <div className="text-amber-400 animate-pulse">🛒 Near 7-Eleven Shop! Press {keyMap.interact} or [A] to enter!</div>}
+                  {nearGuild && <div className="text-indigo-400 animate-pulse">📜 Near Quest Guild! Press {keyMap.interact} or [A] to talk!</div>}
+                  {(nearChest1 || nearChest2) && <div className="text-yellow-400 animate-bounce">📦 Found Gold Loot! Press {keyMap.interact} or [A] to unlock!</div>}
+                  {(nearSlime1 || nearSlime2) && <div className="text-red-400 animate-pulse">👹 Monster Nearby! Press {keyMap.attack} or [X] to Fight!</div>}
+                </div>
               </div>
-            </div>
+
+              {/* GTA Free Roam Engine Diagnostics Hud */}
+              <div className="absolute top-3 right-3 bg-black/85 p-3 rounded-xl text-white font-mono text-[9px] z-30 pointer-events-auto border border-orange-500/30 w-52 space-y-1.5 shadow-2xl">
+                <div className="text-orange-400 font-bold border-b border-gray-800 pb-1 flex justify-between items-center">
+                  <span>🚘 GTA ENGINE METRICS</span>
+                  <span className="text-[7.5px] bg-orange-950 text-orange-400 border border-orange-500/30 px-1 rounded uppercase animate-pulse">WebGL-ON</span>
+                </div>
+                
+                {activeStage && (
+                  <div>
+                    <span className="text-gray-500 block">Stage Active:</span>
+                    <span className="text-white font-bold block truncate">🗺️ {activeStage.name}</span>
+                    <span className="text-[8px] text-gray-400">Weather: {activeStage.weather} • Time: {activeStage.timeOfDay}</span>
+                  </div>
+                )}
+
+                {activeVRM && (
+                  <div className="pt-1.5 border-t border-gray-900">
+                    <span className="text-gray-500 block">VRM Avatar Node:</span>
+                    <span className="text-cyan-400 font-bold block truncate">🧙 {activeVRM.name}</span>
+                    <span className="text-[8px] text-gray-400">Polys: {activeVRM.polyCount.toLocaleString()} • Bones: {activeVRM.bones}</span>
+                  </div>
+                )}
+
+                {activeGLB && (
+                  <div className="pt-1.5 border-t border-gray-900">
+                    <span className="text-gray-500 block">GLB Environment Mesh:</span>
+                    <span className="text-amber-500 font-bold block truncate">📦 {activeGLB.name}</span>
+                    <span className="text-[8px] text-gray-400">Verts: {activeGLB.vertCount.toLocaleString()} • Colliders: {activeGLB.colliders}</span>
+                  </div>
+                )}
+              </div>
+            </>
           );
         })()}
 
