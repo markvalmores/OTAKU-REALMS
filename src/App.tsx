@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import heroImage from './assets/images/start_screen_character_1782926684637.jpg';
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { collection, addDoc, onSnapshot, query, doc, getDoc } from "firebase/firestore";
@@ -114,7 +115,7 @@ export default function App() {
           />
         </div>
         <div className="relative z-10 flex flex-col items-center justify-center bg-gray-950/50 p-10 rounded-3xl backdrop-blur-sm border-2 border-orange-500/30">
-          <img src="/src/assets/images/start_screen_character_1782926684637.jpg" alt="Hero" className="mb-8 rounded-2xl shadow-2xl w-64 h-64 object-cover border-4 border-orange-500" />
+          <img src={heroImage} alt="Hero" className="mb-8 rounded-2xl shadow-2xl w-64 h-64 object-cover border-4 border-orange-500" />
           <h1 className="text-6xl font-heading text-orange-500 mb-8">Otaku Realms</h1>
           <p className="text-gray-400 text-sm mb-6 max-w-sm text-center">Notification Update Version: 0 Demo Version - I am trying to make this work for now and see if people play it.</p>
           <button 
